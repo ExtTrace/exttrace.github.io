@@ -1,0 +1,416 @@
+:root {
+  --bg: #050508;
+  --text: #ffffff;
+  --transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  perspective: 1000px;
+
+  /* Default Indigo Theme Variables */
+  --accent: #818cf8;
+  --text-muted: #818cf8;
+  --glow: rgba(99, 102, 241, 0.15);
+  --text-glow: rgba(99, 102, 241, 0.4);
+  
+  transition: background-color 0.6s ease;
+}
+
+/* Emerald Theme */
+body[data-theme="emerald"] {
+  --accent: #34d399;
+  --text-muted: #34d399;
+  --glow: rgba(52, 211, 153, 0.15);
+  --text-glow: rgba(52, 211, 153, 0.4);
+}
+
+/* Rose Theme */
+body[data-theme="rose"] {
+  --accent: #f43f5e;
+  --text-muted: #f43f5e;
+  --glow: rgba(244, 63, 94, 0.15);
+  --text-glow: rgba(244, 63, 94, 0.4);
+}
+
+/* Amber Theme */
+body[data-theme="amber"] {
+  --accent: #fbbf24;
+  --text-muted: #fbbf24;
+  --glow: rgba(251, 191, 36, 0.15);
+  --text-glow: rgba(251, 191, 36, 0.4);
+}
+
+/* Violet Theme */
+body[data-theme="violet"] {
+  --accent: #a78bfa;
+  --text-muted: #a78bfa;
+  --glow: rgba(167, 139, 250, 0.15);
+  --text-glow: rgba(167, 139, 250, 0.4);
+}
+
+/* Ambient background glow */
+body::before {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+  z-index: -1;
+  filter: blur(40px);
+  transition: var(--transition);
+}
+
+/* Outer wrapper for initial page load animation */
+.clock-wrapper {
+  opacity: 0;
+  animation: fadeInUp 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  z-index: 10;
+}
+
+.clock-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 40px;
+  user-select: none;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease-out;
+}
+
+.time {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 72px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 20px var(--text-glow));
+  transition: filter 0.6s ease;
+  transform: translateZ(40px);
+  cursor: pointer;
+}
+
+.colon {
+  -webkit-text-fill-color: var(--accent); /* Override parent transparent text fill */
+  transition: opacity 0.25s ease-out, -webkit-text-fill-color 0.6s ease;
+}
+
+.ampm {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-left: 12px;
+  vertical-align: bottom;
+  -webkit-text-fill-color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.3s ease, -webkit-text-fill-color 0.6s ease;
+}
+
+.ampm.visible {
+  opacity: 0.85;
+}
+
+.date {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: var(--transition);
+  transform: translateZ(20px);
+}
+
+.domain-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.45;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 4px;
+  transition: var(--transition);
+  transform: translateZ(15px);
+}
+
+/* Custom cursor follower dot */
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
+  transition: background-color 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* Background glow that follows cursor softly */
+.cursor-glow {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  mix-blend-mode: screen;
+}
+
+/* Particle style for click burst */
+.particle {
+  position: fixed;
+  pointer-events: none;
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent);
+  border-radius: 50%;
+  z-index: 10000;
+  transition: transform 0.8s cubic-bezier(0.1, 0.8, 0.3, 1), opacity 0.8s ease-out;
+}
+
+/* Ripple ring style on click */
+.ripple {
+  position: fixed;
+  pointer-events: none;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9998;
+  box-shadow: 0 0 10px var(--accent), inset 0 0 10px var(--accent);
+  animation: rippleEffect 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rippleEffect {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 1;
+  }
+  100% {
+    width: 160px;
+    height: 160px;
+    opacity: 0;
+  }
+}
+
+.color-picker-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s ease;
+  opacity: 0.35;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: 16px;
+  user-select: none;
+  outline: none;
+}
+
+.color-picker-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent);
+}
+
+.color-picker-btn.active {
+  opacity: 1;
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--accent);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Custom Minimalist Palette Popover */
+.color-palette-container {
+  position: fixed;
+  bottom: 80px;
+  right: 24px;
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(10, 10, 15, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  z-index: 101;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.color-palette-container.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.color-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.color-swatch:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 12px currentColor;
+  border-color: #ffffff;
+}
+
+/* Minimalist Battery Status Widget */
+.battery-status {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  opacity: 0.35;
+  transition: opacity 0.3s ease, color 0.6s ease;
+  user-select: none;
+  z-index: 100;
+}
+
+.battery-status:hover {
+  opacity: 0.85;
+}
+
+.battery-icon {
+  width: 22px;
+  height: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 2px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 1px;
+  transition: border-color 0.6s ease;
+}
+
+.battery-icon::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 3px;
+  width: 2px;
+  height: 4px;
+  background: var(--accent);
+  border-radius: 0 1px 1px 0;
+  transition: background-color 0.6s ease;
+}
+
+.battery-level {
+  height: 100%;
+  background-color: var(--accent);
+  border-radius: 1px;
+  width: 0%;
+  transition: width 0.3s ease, background-color 0.6s ease;
+}
+
+/* Charging breathing glow effect */
+.battery-status.charging .battery-level {
+  animation: batteryCharge 1.5s infinite ease-in-out;
+}
+
+@keyframes batteryCharge {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+/* Minimalist Network Status Indicator */
+.network-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(10px);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.network-status.offline {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.network-dot {
+  width: 6px;
+  height: 6px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ef4444, 0 0 16px #ef4444;
+  animation: pulseRed 1.5s infinite alternate;
+}
+
+.network-text {
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #ef4444;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+@keyframes pulseRed {
+  0% { opacity: 0.45; }
+  100% { opacity: 1; }
+}

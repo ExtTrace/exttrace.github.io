@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Digital Clock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+  <link id="favicon" rel="icon" type="image/svg+xml">
+</head>
+
+<body>
+  <!-- Canvas for Floating Cosmic Dust Particles -->
+  <canvas id="dust-canvas" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0;"></canvas>
+
+  <div class="cursor-dot" id="cursor-dot"></div>
+  <div class="cursor-glow" id="cursor-glow"></div>
+
+  <div class="battery-status" id="battery-status">
+    <!-- Network status offline indicator -->
+    <div class="network-status" id="network-status">
+      <span class="network-dot"></span>
+      <span class="network-text">Offline</span>
+    </div>
+    <span id="battery-percent">--%</span>
+    <div class="battery-icon">
+      <div class="battery-level" id="battery-level"></div>
+    </div>
+  </div>
+
+  <div class="clock-wrapper">
+    <div class="clock-container" id="clock-container">
+      <div class="time" id="time-container">
+        <span id="hours">00</span><span class="colon">:</span><span id="minutes">00</span><span class="colon">:</span><span id="seconds">00</span><span id="ampm" class="ampm"></span>
+      </div>
+      <div class="date" id="date">Day, Month Date Year</div>
+      <div class="domain-label" id="domain-label">loading...</div>
+    </div>
+  </div>
+  <!-- Custom Minimalist Color Palette Popover -->
+  <div class="color-palette-container" id="color-palette">
+    <div class="color-swatch" data-color="#818cf8" style="background-color: #818cf8;"></div>
+    <div class="color-swatch" data-color="#34d399" style="background-color: #34d399;"></div>
+    <div class="color-swatch" data-color="#f43f5e" style="background-color: #f43f5e;"></div>
+    <div class="color-swatch" data-color="#fbbf24" style="background-color: #fbbf24;"></div>
+    <div class="color-swatch" data-color="#a78bfa" style="background-color: #a78bfa;"></div>
+    <div class="color-swatch" data-color="#38bdf8" style="background-color: #38bdf8;"></div>
+    <div class="color-swatch" data-color="#fb7185" style="background-color: #fb7185;"></div>
+    <div class="color-swatch" data-color="#a3e635" style="background-color: #a3e635;"></div>
+    <div class="color-swatch" data-color="#f97316" style="background-color: #f97316;"></div>
+    <div class="color-swatch" data-color="#22d3ee" style="background-color: #22d3ee;"></div>
+    <!-- Rainbow Swatch to trigger native custom picker -->
+    <div class="color-swatch custom-picker-swatch" id="custom-picker-trigger" style="background: linear-gradient(45deg, #f43f5e, #fbbf24, #34d399, #38bdf8, #a78bfa); display: flex; justify-content: center; align-items: center; color: white; font-size: 14px; font-weight: 800; text-shadow: 0 1px 2px rgba(0,0,0,0.4); position: relative; overflow: hidden;">
+      +
+      <input type="color" id="color-picker" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; padding: 0; border: none; pointer-events: auto;">
+    </div>
+  </div>
+  <button class="color-picker-btn" id="color-picker-btn">🎨</button>
+  <!-- Loading external modules dynamically -->
+  <script type="module" src="assets/main.js"></script>
+</body>
+</html>
