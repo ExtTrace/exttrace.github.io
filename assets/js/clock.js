@@ -10,15 +10,26 @@ let colonVisible = true;
 let is24Hour = true;
 let lastMinutesValue = -1;
 
-// Restore saved clock format preference
-const savedFormat = localStorage.getItem('clock-is-24h');
-if (savedFormat !== null) {
-  is24Hour = savedFormat === 'true';
+// Restore saved clock format preference safely
+try {
+  const savedFormat = localStorage.getItem('clock-is-24h');
+  if (savedFormat !== null) {
+    is24Hour = savedFormat === 'true';
+  }
+} catch (e) {
+  console.warn("LocalStorage is not available:", e);
 }
 
-timeContainer.addEventListener('click', () => {
+timeContainer.addEventListener('click', (e) => {
+  e.preventDefault();
   is24Hour = !is24Hour;
-  localStorage.setItem('clock-is-24h', is24Hour);
+  
+  try {
+    localStorage.setItem('clock-is-24h', is24Hour);
+  } catch (e) {
+    console.warn("Could not save to LocalStorage:", e);
+  }
+  
   updateClock();
 });
 
@@ -34,6 +45,7 @@ function updateClock() {
     ampmSpan.textContent = ampmVal;
     ampmSpan.classList.add('visible');
   } else {
+    ampmSpan.textContent = ''; // Clear text content to prevent layout artifacts
     ampmSpan.classList.remove('visible');
   }
 
@@ -68,9 +80,31 @@ function updateClock() {
   }
 }
 
-export function initClock() {
-  document.getElementById('domain-label').textContent = window.location.hostname;
+function runClockLoop() {
+  updateClock();
   
+  // Calculate exact milliseconds left until the next second boundary
+  const now = new Date();
+  const msUntilNextSecond = 1000 - now.getMilliseconds();
+  
+  // Dynamic sync scheduling
+  setTimeout(runClockLoop, msUntilNextSecond);
+}
+
+export function initClock() {
+  // Check URL query parameters to toggle screensaver mode automatically
+  const urlParams = new URLSearchParams(window.location.search);
+  const isScreensaverMode = urlParams.get('mode') === 'screensaver' || urlParams.get('screensaver') === 'true';
+
+  const domainLabel = document.getElementById('domain-label');
+  if (domainLabel) {
+    if (isScreensaverMode) {
+      domainLabel.style.display = 'none';
+    } else {
+      domainLabel.textContent = window.location.hostname;
+    }
+  }
+
   // Clean up animation on wrapper once completed to free up transform property
   const wrapper = document.querySelector('.clock-wrapper');
   if (wrapper) {
@@ -80,6 +114,6 @@ export function initClock() {
     });
   }
 
-  updateClock();
-  setInterval(updateClock, 1000);
+  // Start the self-correcting sync loop
+  runClockLoop();
 }

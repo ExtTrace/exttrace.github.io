@@ -13,11 +13,18 @@
   -webkit-tap-highlight-color: transparent; /* Remove blue highlight tap overlay on mobile */
 }
 
+html {
+  width: 100%;
+  height: 100dvh; /* Lock height to dynamic viewport to prevent mobile navigation bar offset */
+  overflow: hidden;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);
   font-family: 'Outfit', sans-serif;
-  min-height: 100vh;
+  width: 100%;
+  height: 100dvh; /* Align with html height exactly */
   display: flex;
   justify-content: center;
   align-items: center;

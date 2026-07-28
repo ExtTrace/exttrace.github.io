@@ -59,38 +59,42 @@ export function initThemes() {
   const customTrigger = document.getElementById('custom-picker-trigger');
   const colorPicker = document.getElementById('color-picker');
 
-  // 1. Restore theme state on initialization
-  const savedCustomColor = localStorage.getItem('custom-theme-color');
-  const savedPresetTheme = localStorage.getItem('preset-theme');
+  // 1. Restore theme state safely on initialization
+  let savedCustomColor = null;
+  let savedPresetTheme = null;
+
+  try {
+    savedCustomColor = localStorage.getItem('custom-theme-color');
+    savedPresetTheme = localStorage.getItem('preset-theme');
+  } catch (e) {
+    console.warn("Could not read from LocalStorage:", e);
+  }
 
   if (savedCustomColor) {
     applyCustomColor(savedCustomColor);
     colorPicker.value = savedCustomColor;
   } else if (savedPresetTheme) {
-    // Restore preset theme attribute
     if (savedPresetTheme === 'default') {
       document.body.removeAttribute('data-theme');
     } else {
       document.body.setAttribute('data-theme', savedPresetTheme);
     }
-    // Update theme index pointer
     currentThemeIndex = themes.indexOf(savedPresetTheme);
     if (currentThemeIndex === -1) currentThemeIndex = 0;
-    
-    // Apply matching favicon
     updateFavicon(themeColors[savedPresetTheme] || themeColors.default);
   } else {
-    // Initial default favicon load
     updateFavicon(themeColors.default);
   }
 
   // 2. Double-Click Theme Cycle
   window.addEventListener('dblclick', (e) => {
-    // Prevent triggering when clicking inside the palette button, picker, or container
     if (btn.contains(e.target) || palette.contains(e.target) || e.target === colorPicker) return;
 
-    // Reset custom color
-    localStorage.removeItem('custom-theme-color');
+    try {
+      localStorage.removeItem('custom-theme-color');
+    } catch (e) {
+      console.warn("Could not remove item from LocalStorage:", e);
+    }
     clearCustomColor();
 
     currentThemeIndex = (currentThemeIndex + 1) % themes.length;
@@ -102,8 +106,11 @@ export function initThemes() {
       document.body.setAttribute('data-theme', nextTheme);
     }
 
-    // Save active preset theme & sync favicon
-    localStorage.setItem('preset-theme', nextTheme);
+    try {
+      localStorage.setItem('preset-theme', nextTheme);
+    } catch (e) {
+      console.warn("Could not save to LocalStorage:", e);
+    }
     updateFavicon(themeColors[nextTheme] || themeColors.default);
   });
 
@@ -120,19 +127,23 @@ export function initThemes() {
       e.stopPropagation();
       const hex = swatch.getAttribute('data-color');
       
-      // Clear preset data-theme states
       document.body.removeAttribute('data-theme');
-      localStorage.removeItem('preset-theme');
+      try {
+        localStorage.removeItem('preset-theme');
+      } catch (e) {
+        console.warn(e);
+      }
       currentThemeIndex = 0;
 
-      // Apply & Save custom color
       applyCustomColor(hex);
-      localStorage.setItem('custom-theme-color', hex);
+      try {
+        localStorage.setItem('custom-theme-color', hex);
+      } catch (e) {
+        console.warn("Could not save custom color to LocalStorage:", e);
+      }
 
-      // Set input picker value to match
       colorPicker.value = hex;
 
-      // Close popover
       palette.classList.remove('visible');
       btn.classList.remove('active');
     });
@@ -147,13 +158,20 @@ export function initThemes() {
   colorPicker.addEventListener('input', (e) => {
     const selectedHex = e.target.value;
     
-    // Clear preset states
     document.body.removeAttribute('data-theme');
-    localStorage.removeItem('preset-theme');
+    try {
+      localStorage.removeItem('preset-theme');
+    } catch (e) {
+      console.warn(e);
+    }
     currentThemeIndex = 0;
 
     applyCustomColor(selectedHex);
-    localStorage.setItem('custom-theme-color', selectedHex);
+    try {
+      localStorage.setItem('custom-theme-color', selectedHex);
+    } catch (e) {
+      console.warn(e);
+    }
   });
 
   // Close palette popover when native picker dialog is closed/changed
