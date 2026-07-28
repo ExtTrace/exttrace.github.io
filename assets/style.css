@@ -1,5 +1,5 @@
 :root {
-  --bg: #050508;
+  --bg: #000000;
   --text: #ffffff;
   --transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -8,6 +8,9 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-user-select: none;
+  user-select: none; /* Prevent text selection highlights */
+  -webkit-tap-highlight-color: transparent; /* Remove blue highlight tap overlay on mobile */
 }
 
 body {
@@ -21,6 +24,7 @@ body {
   overflow: hidden;
   position: relative;
   perspective: 1000px;
+  touch-action: manipulation; /* Prevent browser double-tap-to-zoom shifting */
 
   /* Default Indigo Theme Variables */
   --accent: #818cf8;
@@ -165,7 +169,7 @@ body::before {
   transform: translate(-50%, -50%);
   z-index: 9999;
   box-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
-  transition: background-color 0.6s ease, box-shadow 0.6s ease;
+  transition: background-color 0.6s ease, box-shadow 0.6s ease, opacity 0.5s ease;
 }
 
 /* Background glow that follows cursor softly */
@@ -179,6 +183,7 @@ body::before {
   transform: translate(-50%, -50%);
   z-index: 1;
   mix-blend-mode: screen;
+  transition: opacity 0.5s ease;
 }
 
 /* Particle style for click burst */
@@ -413,4 +418,66 @@ body::before {
 @keyframes pulseRed {
   0% { opacity: 0.45; }
   100% { opacity: 1; }
+}
+
+/* Mobile Responsive Adjustments */
+@media (max-width: 600px) {
+  .time {
+    font-size: 44px; /* Scaled down to prevent text wrapping on smaller screens */
+    letter-spacing: 1px;
+  }
+
+  .ampm {
+    font-size: 14px;
+    margin-left: 6px;
+  }
+
+  .date {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+  }
+
+  .domain-label {
+    font-size: 9px;
+    letter-spacing: 2px;
+  }
+
+  .battery-status {
+    top: 16px;
+    right: 16px;
+    font-size: 11px;
+  }
+
+  .battery-icon {
+    width: 18px;
+    height: 10px;
+  }
+
+  .battery-icon::after {
+    right: -2px;
+    top: 2px;
+    width: 1.5px;
+    height: 3px;
+  }
+
+  .color-picker-btn {
+    bottom: 16px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+
+  .color-palette-container {
+    bottom: 68px;
+    right: 16px;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 16px;
+  }
+
+  .color-swatch {
+    width: 18px;
+    height: 18px;
+  }
 }

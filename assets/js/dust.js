@@ -5,6 +5,8 @@ const ctx = canvas.getContext('2d');
 const dustParticles = [];
 const dustCount = 45;
 
+let isVisible = true;
+
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -117,7 +119,17 @@ for (let i = 0; i < dustCount; i++) {
 
 const star = new ShootingStar();
 
+// Visibility Listener: Pause animation when tab/screen is invisible to save CPU resources
+document.addEventListener('visibilitychange', () => {
+  isVisible = document.visibilityState === 'visible';
+  if (isVisible) {
+    animateDust(); // Resume loops
+  }
+});
+
 export function animateDust() {
+  if (!isVisible) return; // Halt loop execution on invisibility
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.shadowBlur = 0;
 

@@ -3,11 +3,41 @@ import { mouseState } from './state.js';
 const dot = document.getElementById('cursor-dot');
 const glow = document.getElementById('cursor-glow');
 const clockContainer = document.getElementById('clock-container');
+const pickerBtn = document.getElementById('color-picker-btn');
 
 let dotX = mouseState.x;
 let dotY = mouseState.y;
 let glowX = mouseState.x;
 let glowY = mouseState.y;
+
+let idleTimer;
+
+// Reset idle timer and restore visibility
+function resetIdleTimer() {
+  dot.style.opacity = '1';
+  glow.style.opacity = '1';
+  if (pickerBtn && !pickerBtn.classList.contains('active')) {
+    pickerBtn.style.opacity = '0.35';
+  }
+  document.body.style.cursor = 'default';
+
+  clearTimeout(idleTimer);
+  
+  // Screensaver Mode: Hide cursor and UI buttons after 3 seconds of idleness
+  idleTimer = setTimeout(() => {
+    dot.style.opacity = '0';
+    glow.style.opacity = '0';
+    if (pickerBtn && !pickerBtn.classList.contains('active')) {
+      pickerBtn.style.opacity = '0';
+    }
+    document.body.style.cursor = 'none';
+  }, 3000);
+}
+
+// Attach reset listeners
+window.addEventListener('mousemove', resetIdleTimer);
+window.addEventListener('mousedown', resetIdleTimer);
+resetIdleTimer();
 
 // 3D Parallax Tilt Effect on mousemove
 window.addEventListener('mousemove', () => {
