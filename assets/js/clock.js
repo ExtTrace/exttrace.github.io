@@ -75,7 +75,7 @@ function updateClock() {
     lastMinutesValue = currentMinutes;
     const wrapper = document.querySelector('.clock-wrapper');
     if (wrapper) {
-      const transitionCurve = 'opacity 1.0s cubic-bezier(0.4, 0, 0.2, 1)';
+      const transitionCurve = 'opacity 2s cubic-bezier(0.4, 0, 0.2, 1)';
 
       // Step 1: Smooth Fade Out (0.7s 1:1 speed)
       wrapper.style.transition = transitionCurve;
