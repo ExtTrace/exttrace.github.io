@@ -121,6 +121,26 @@ export function initClock() {
     });
   }
 
+  // Handle Exit Screensaver Button click
+  const exitBtn = document.getElementById('exit-screensaver-btn');
+  if (exitBtn) {
+    exitBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      // 1. Trigger Android native JavascriptInterface bridge if available
+      if (window.AndroidBridge && typeof window.AndroidBridge.exitScreensaver === 'function') {
+        window.AndroidBridge.exitScreensaver();
+        return;
+      }
+      // 2. Browser fallback for web preview
+      try {
+        window.close();
+      } catch (err) {}
+      if (window.history.length > 1) {
+        window.history.back();
+      }
+    });
+  }
+
   // Start the self-correcting sync loop
   runClockLoop();
 }

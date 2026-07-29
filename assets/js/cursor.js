@@ -4,6 +4,7 @@ const dot = document.getElementById('cursor-dot');
 const glow = document.getElementById('cursor-glow');
 const clockContainer = document.getElementById('clock-container');
 const pickerBtn = document.getElementById('color-picker-btn');
+const exitBtn = document.getElementById('exit-screensaver-btn');
 
 let dotX = mouseState.x;
 let dotY = mouseState.y;
@@ -19,6 +20,9 @@ function resetIdleTimer() {
   if (pickerBtn && !pickerBtn.classList.contains('active')) {
     pickerBtn.style.opacity = '0.35';
   }
+  if (exitBtn) {
+    exitBtn.style.opacity = '0.35';
+  }
   document.body.style.cursor = 'default';
 
   clearTimeout(idleTimer);
@@ -29,6 +33,9 @@ function resetIdleTimer() {
     glow.style.opacity = '0';
     if (pickerBtn && !pickerBtn.classList.contains('active')) {
       pickerBtn.style.opacity = '0';
+    }
+    if (exitBtn) {
+      exitBtn.style.opacity = '0';
     }
     document.body.style.cursor = 'none';
   }, 3000);
