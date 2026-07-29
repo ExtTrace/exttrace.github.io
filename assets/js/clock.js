@@ -92,15 +92,22 @@ function runClockLoop() {
 }
 
 export function initClock() {
-  // Check URL query parameters to toggle screensaver mode automatically
+  // Detect routes (/android, /windows) or query parameters (?mode=android, ?mode=windows, ?mode=screensaver)
+  const pathname = window.location.pathname.toLowerCase();
   const urlParams = new URLSearchParams(window.location.search);
-  const isScreensaverMode = urlParams.get('mode') === 'screensaver' || urlParams.get('screensaver') === 'true';
+  const queryMode = urlParams.get('mode')?.toLowerCase();
+  const isScreensaverParam = urlParams.get('screensaver') === 'true';
+
+  const isAndroidRoute = pathname.includes('/android') || queryMode === 'android';
+  const isWindowsRoute = pathname.includes('/windows') || queryMode === 'windows' || queryMode === 'screensaver' || isScreensaverParam;
+  const isScreensaverMode = isAndroidRoute || isWindowsRoute;
 
   const domainLabel = document.getElementById('domain-label');
   if (domainLabel) {
     if (isScreensaverMode) {
       domainLabel.style.display = 'none';
     } else {
+      domainLabel.style.display = '';
       domainLabel.textContent = window.location.hostname;
     }
   }

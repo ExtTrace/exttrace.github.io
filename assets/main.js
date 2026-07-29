@@ -6,6 +6,7 @@ import { initThemes } from './js/themes.js';
 import { animateDust } from './js/dust.js';
 import { initBattery } from './js/battery.js';
 import { initNetworkStatus } from './js/network.js';
+import { initNotifications } from './js/notifications.js';
 
 // Initialize all features on load
 initClock();
@@ -15,3 +16,4 @@ initThemes();
 animateDust();
 initBattery();
 initNetworkStatus();
+initNotifications();
