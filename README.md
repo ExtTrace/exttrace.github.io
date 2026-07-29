@@ -7,7 +7,7 @@ A modern, responsive, high-precision digital clock web application designed for 
 ## ✨ Features
 
 - ⏱️ **High-Precision Timekeeping:** Synchronized to exact system second boundaries with 12-hour (AM/PM) and 24-hour format toggling.
-- 🛡️ **OLED & IPS Burn-In Prevention:** Random minute-based pixel shifting (`translate(x, y)` smooth transition every 60 seconds) to protect screens during long screensaver sessions.
+- 🛡️ **OLED & IPS Burn-In Protection (Show/Hide & Teleport):** Smooth fade-out, random screen repositioning (top, center, left, bottom, right), and fade-in transition every minute to prevent OLED/AMOLED/IPS burn-in.
 - 🎨 **Custom Color Themes:** Minimalist color palette popover + native color picker integration to customize clock accent colors.
 - 🌌 **Cosmic Dust Canvas Engine:** Interactive floating particle system rendered on full-screen Canvas with automatic performance throttling.
 - 🔋 **Battery & Energy Efficient:** Integrates Page Visibility API (`visibilitychange`) to pause background rendering when the screen or tab is inactive.

@@ -59,23 +59,57 @@ function updateClock() {
     month: 'long',
     year: 'numeric'
   };
-  dateDiv.textContent = now.toLocaleDateString('en-US', options);
+  const systemLocale = new URLSearchParams(window.location.search).get('lang') || navigator.language || undefined;
+  dateDiv.textContent = now.toLocaleDateString(systemLocale, options);
 
   colons.forEach(c => {
     c.style.opacity = colonVisible ? '1' : '0.2';
   });
   colonVisible = !colonVisible;
 
-  // OLED/IPS Screen Burn-In Prevention (Pixel Shifting every minute)
+  // OLED/IPS Screen Burn-In Protection (Fade Out -> Instant Silent Jump -> Fade In)
   const currentMinutes = now.getMinutes();
-  if (currentMinutes !== lastMinutesValue) {
+  if (lastMinutesValue === -1) {
     lastMinutesValue = currentMinutes;
-    const offsetX = (Math.random() - 0.5) * 50; // -25px to +25px range
-    const offsetY = (Math.random() - 0.5) * 30; // -15px to +15px range
+  } else if (currentMinutes !== lastMinutesValue) {
+    lastMinutesValue = currentMinutes;
     const wrapper = document.querySelector('.clock-wrapper');
     if (wrapper) {
-      wrapper.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
-      wrapper.style.transition = 'transform 6s cubic-bezier(0.25, 1, 0.5, 1)';
+      const transitionCurve = 'opacity 1.0s cubic-bezier(0.4, 0, 0.2, 1)';
+
+      // Step 1: Smooth Fade Out (0.7s 1:1 speed)
+      wrapper.style.transition = transitionCurve;
+      wrapper.style.opacity = '0';
+
+      // Step 2: Instant silent reposition while 100% invisible
+      setTimeout(() => {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const wrapperWidth = wrapper.offsetWidth || 380;
+        const wrapperHeight = wrapper.offsetHeight || 180;
+
+        // Safe boundaries with padding so clock is never cut off
+        const paddingX = 30;
+        const paddingY = 30;
+        const maxX = Math.max(0, (vw - wrapperWidth) / 2 - paddingX);
+        const maxY = Math.max(0, (vh - wrapperHeight) / 2 - paddingY);
+
+        const randomX = (Math.random() * 2 - 1) * maxX; // -maxX to +maxX
+        const randomY = (Math.random() * 2 - 1) * maxY; // -maxY to +maxY
+
+        // Disable transition for instant 0ms position jump
+        wrapper.style.transition = 'none';
+        wrapper.style.transform = `translate(${randomX}px, ${randomY}px)`;
+
+        // Force browser layout reflow to apply position instantly while hidden
+        void wrapper.offsetWidth;
+
+        // Step 3: Smooth Fade In at new location (0.7s 1:1 speed)
+        requestAnimationFrame(() => {
+          wrapper.style.transition = transitionCurve;
+          wrapper.style.opacity = '1';
+        });
+      }, 500);
     }
   }
 }

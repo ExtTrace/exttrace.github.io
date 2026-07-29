@@ -74,19 +74,6 @@ body[data-theme="violet"] {
   --text-glow: rgba(167, 139, 250, 0.4);
 }
 
-/* Ambient background glow */
-body::before {
-  content: '';
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
-  z-index: -1;
-  filter: blur(40px);
-  transition: var(--transition);
-}
-
 /* Outer wrapper for initial page load animation */
 .clock-wrapper {
   opacity: 0;
@@ -104,6 +91,24 @@ body::before {
   user-select: none;
   transform-style: preserve-3d;
   transition: transform 0.15s ease-out;
+  position: relative;
+}
+
+/* Ambient background glow following the clock container */
+.clock-container::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+  z-index: -1;
+  filter: blur(50px);
+  pointer-events: none;
+  transition: background 0.6s ease;
 }
 
 .time {
@@ -193,6 +198,17 @@ body::before {
   transition: opacity 0.5s ease;
 }
 
+/* Glowing Cursor Comet Tail Particle */
+.cursor-trail {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 0.92;
+  z-index: 9997;
+  transition: transform 0.55s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.55s ease-out;
+}
+
 /* Particle style for click burst */
 .particle {
   position: fixed;
@@ -213,8 +229,20 @@ body::before {
   border-radius: 50%;
   transform: translate(-50%, -50%);
   z-index: 9998;
-  box-shadow: 0 0 10px var(--accent), inset 0 0 10px var(--accent);
-  animation: rippleEffect 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+  box-shadow: 0 0 16px var(--accent), inset 0 0 16px var(--accent);
+  animation: rippleEffect 0.75s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+.ripple-outer {
+  position: fixed;
+  pointer-events: none;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9997;
+  opacity: 0.5;
+  box-shadow: 0 0 30px var(--glow);
+  animation: rippleOuterEffect 0.9s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes fadeInUp {
@@ -233,10 +261,28 @@ body::before {
     width: 0;
     height: 0;
     opacity: 1;
+    border-width: 3px;
+  }
+  50% {
+    opacity: 0.8;
   }
   100% {
-    width: 160px;
-    height: 160px;
+    width: 360px;
+    height: 360px;
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+@keyframes rippleOuterEffect {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.6;
+  }
+  100% {
+    width: 540px;
+    height: 540px;
     opacity: 0;
   }
 }

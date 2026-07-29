@@ -3,9 +3,13 @@ import { mouseState } from './state.js';
 const canvas = document.getElementById('dust-canvas');
 const ctx = canvas.getContext('2d');
 const dustParticles = [];
-const dustCount = 45;
+// Increased density for crisp visibility across mobile & desktop
+const dustCount = 70;
 
 let isVisible = true;
+let isLoopRunning = false;
+// Set initial timestamp to 0 so the first comet spawns shortly after page load
+let lastStarTime = 0;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -23,22 +27,24 @@ class DustParticle {
   reset() {
     this.x = Math.random() * canvas.width;
     this.y = canvas.height + 10;
-    this.size = 0.5 + Math.random() * 2;
-    this.speedY = 0.15 + Math.random() * 0.35;
-    this.speedX = (Math.random() - 0.5) * 0.15;
-    this.opacity = 0.05 + Math.random() * 0.35;
+    // Scaled sizes (1.8px to 4.5px) for clear visibility on high-DPI mobile screens
+    this.size = 1.8 + Math.random() * 2.7;
+    this.speedY = 0.2 + Math.random() * 0.45;
+    this.speedX = (Math.random() - 0.5) * 0.2;
+    // Higher opacity (0.25 to 0.75) for vibrant floating dust
+    this.opacity = 0.25 + Math.random() * 0.50;
   }
 
   update() {
     const dx = mouseState.x - this.x;
     const dy = mouseState.y - this.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
-    const gravityRadius = 250;
+    const gravityRadius = 260;
 
     if (distance < gravityRadius) {
       const force = (gravityRadius - distance) / gravityRadius;
-      const pullX = (dx / distance) * force * 0.3;
-      const pullY = (dy / distance) * force * 0.3;
+      const pullX = (dx / distance) * force * 0.4;
+      const pullY = (dy / distance) * force * 0.4;
       
       this.x += pullX;
       this.y += pullY;
@@ -58,7 +64,7 @@ class DustParticle {
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.fillStyle = activeColor;
     ctx.globalAlpha = this.opacity;
-    ctx.shadowBlur = 3;
+    ctx.shadowBlur = 8;
     ctx.shadowColor = activeColor;
     ctx.fill();
   }
@@ -70,10 +76,13 @@ class ShootingStar {
   }
 
   reset() {
-    this.x = Math.random() * canvas.width * 0.6;
-    this.y = -50;
-    this.speedX = 6 + Math.random() * 6;
-    this.speedY = 4 + Math.random() * 4;
+    // Randomize starting point across top/left sky
+    this.x = Math.random() * canvas.width * 0.7 - 50;
+    this.y = Math.random() * (canvas.height * 0.3) - 50;
+    // Graceful, majestic gliding speed
+    this.speedX = 5 + Math.random() * 4;
+    this.speedY = 3.2 + Math.random() * 3;
+    this.lengthFactor = 18 + Math.random() * 8; // Long magnificent comet tail
     this.opacity = 1.0;
     this.active = true;
   }
@@ -82,10 +91,11 @@ class ShootingStar {
     if (!this.active) return;
     this.x += this.speedX;
     this.y += this.speedY;
-    this.opacity -= 0.02;
+    this.opacity -= 0.008; // Smooth, gradual fade
 
-    if (this.opacity <= 0 || this.y > canvas.height + 50 || this.x > canvas.width + 50) {
+    if (this.opacity <= 0 || this.y > canvas.height + 100 || this.x > canvas.width + 100) {
       this.active = false;
+      lastStarTime = Date.now(); // Record finish time for cooldown
     }
   }
 
@@ -93,23 +103,33 @@ class ShootingStar {
     if (!this.active) return;
     const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#818cf8';
     
+    const tailX = this.x - this.speedX * this.lengthFactor;
+    const tailY = this.y - this.speedY * this.lengthFactor;
+
+    // 1. Draw glowing comet tail beam
     ctx.beginPath();
-    const gradient = ctx.createLinearGradient(
-      this.x, this.y, 
-      this.x - this.speedX * 3, this.y - this.speedY * 3
-    );
-    gradient.addColorStop(0, activeColor);
+    const gradient = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
+    gradient.addColorStop(0, '#ffffff');
+    gradient.addColorStop(0.2, activeColor);
     gradient.addColorStop(1, 'transparent');
 
     ctx.strokeStyle = gradient;
-    ctx.lineWidth = 1.8;
-    ctx.globalAlpha = this.opacity;
-    ctx.shadowBlur = 8;
+    ctx.lineWidth = 3.4;
+    ctx.globalAlpha = Math.max(0, this.opacity);
+    ctx.shadowBlur = 16;
     ctx.shadowColor = activeColor;
 
     ctx.moveTo(this.x, this.y);
-    ctx.lineTo(this.x - this.speedX * 3, this.y - this.speedY * 3);
+    ctx.lineTo(tailX, tailY);
     ctx.stroke();
+
+    // 2. Draw intense glowing white meteor head
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, 3.2, 0, Math.PI * 2);
+    ctx.fillStyle = '#ffffff';
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = activeColor;
+    ctx.fill();
   }
 }
 
@@ -121,24 +141,32 @@ const star = new ShootingStar();
 
 // Visibility Listener: Pause animation when tab/screen is invisible to save CPU resources
 document.addEventListener('visibilitychange', () => {
+  const previouslyVisible = isVisible;
   isVisible = document.visibilityState === 'visible';
-  if (isVisible) {
-    animateDust(); // Resume loops
+  
+  // Guard against loop stacking: Only resume if coming back from invisible state
+  if (isVisible && !previouslyVisible && !isLoopRunning) {
+    animateDust();
   }
 });
 
 export function animateDust() {
-  if (!isVisible) return; // Halt loop execution on invisibility
+  if (!isVisible) {
+    isLoopRunning = false;
+    return; // Halt loop execution on invisibility
+  }
 
+  isLoopRunning = true;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.shadowBlur = 0;
 
   dustParticles.forEach(p => {
     p.update();
     p.draw();
   });
 
-  if (!star.active && Math.random() < 0.0015) {
+  const now = Date.now();
+  // Spawn initial comet quickly (within ~2s) then enforce smooth 6s cooldown
+  if (!star.active && (now - lastStarTime > 6000) && Math.random() < 0.004) {
     star.reset();
   }
 

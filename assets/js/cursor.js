@@ -11,6 +11,9 @@ let dotY = mouseState.y;
 let glowX = mouseState.x;
 let glowY = mouseState.y;
 
+let lastTrailX = mouseState.x;
+let lastTrailY = mouseState.y;
+
 let idleTimer;
 
 // Reset idle timer and restore visibility
@@ -41,8 +44,52 @@ function resetIdleTimer() {
   }, 3000);
 }
 
-// Attach reset listeners
-window.addEventListener('mousemove', resetIdleTimer);
+// Spawn glowing comet trail particles on cursor movement
+function spawnTrailParticle(x, y) {
+  const dist = Math.hypot(x - lastTrailX, y - lastTrailY);
+  // Spawn particle if cursor has moved at least 4px for dense overlapping trail
+  if (dist < 4) return;
+
+  lastTrailX = x;
+  lastTrailY = y;
+
+  const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#818cf8';
+  const trail = document.createElement('div');
+  trail.className = 'cursor-trail';
+  trail.style.left = `${x}px`;
+  trail.style.top = `${y}px`;
+
+  // Thicker dynamic trail particle size (12px to 26px)
+  const size = Math.min(26, Math.max(12, dist * 0.45));
+  trail.style.width = `${size}px`;
+  trail.style.height = `${size}px`;
+  trail.style.backgroundColor = activeColor;
+  trail.style.boxShadow = `0 0 16px ${activeColor}, 0 0 32px ${activeColor}, inset 0 0 6px rgba(255, 255, 255, 0.5)`;
+
+  document.body.appendChild(trail);
+
+  // Animate shrink and fade out smoothly
+  requestAnimationFrame(() => {
+    trail.style.transform = 'translate(-50%, -50%) scale(0.1)';
+    trail.style.opacity = '0';
+  });
+
+  setTimeout(() => {
+    trail.remove();
+  }, 550);
+}
+
+// Attach reset listeners & trail generator
+window.addEventListener('mousemove', (e) => {
+  resetIdleTimer();
+  spawnTrailParticle(e.clientX, e.clientY);
+});
+window.addEventListener('touchmove', (e) => {
+  resetIdleTimer();
+  if (e.touches && e.touches[0]) {
+    spawnTrailParticle(e.touches[0].clientX, e.touches[0].clientY);
+  }
+});
 window.addEventListener('mousedown', resetIdleTimer);
 resetIdleTimer();
 
@@ -60,11 +107,13 @@ window.addEventListener('mousemove', () => {
 });
 
 export function animateFollower() {
-  dotX += (mouseState.x - dotX) * 0.15;
-  dotY += (mouseState.y - dotY) * 0.15;
+  // Smooth, fluid lerp following
+  dotX += (mouseState.x - dotX) * 0.30;
+  dotY += (mouseState.y - dotY) * 0.30;
 
-  glowX += (mouseState.x - glowX) * 0.04;
-  glowY += (mouseState.y - glowY) * 0.04;
+  // Glow lerp set to 0.07 for fluid, realistic motion that pairs with the comet tail
+  glowX += (mouseState.x - glowX) * 0.07;
+  glowY += (mouseState.y - glowY) * 0.07;
 
   dot.style.left = `${dotX}px`;
   dot.style.top = `${dotY}px`;

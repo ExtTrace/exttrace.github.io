@@ -7,21 +7,32 @@ export function initClickEffects() {
 
 function createRipple(x, y) {
   const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#818cf8';
+
+  // Inner sharp ring (expands to 360px)
   const r = document.createElement('div');
   r.className = 'ripple';
   r.style.left = `${x}px`;
   r.style.top = `${y}px`;
   r.style.borderColor = activeColor;
-  r.style.boxShadow = `0 0 10px ${activeColor}, inset 0 0 10px ${activeColor}`;
+  r.style.boxShadow = `0 0 16px ${activeColor}, inset 0 0 16px ${activeColor}`;
   document.body.appendChild(r);
+
+  // Outer ambient shockwave ring (expands to 540px)
+  const rOuter = document.createElement('div');
+  rOuter.className = 'ripple-outer';
+  rOuter.style.left = `${x}px`;
+  rOuter.style.top = `${y}px`;
+  rOuter.style.borderColor = activeColor;
+  document.body.appendChild(rOuter);
 
   setTimeout(() => {
     r.remove();
-  }, 600);
+    rOuter.remove();
+  }, 950);
 }
 
 function createParticleBurst(x, y) {
-  const particleCount = 20;
+  const particleCount = 36; // Increased particle count for a rich, wide splash
   const activeColor = getComputedStyle(document.body).getPropertyValue('--accent').trim() || '#818cf8';
 
   for (let i = 0; i < particleCount; i++) {
@@ -30,16 +41,18 @@ function createParticleBurst(x, y) {
     p.style.left = `${x}px`;
     p.style.top = `${y}px`;
     
-    const size = 3 + Math.random() * 5;
+    // Random particle sizes (3px to 9px)
+    const size = 3 + Math.random() * 6;
     p.style.width = `${size}px`;
     p.style.height = `${size}px`;
 
     p.style.backgroundColor = activeColor;
-    p.style.boxShadow = `0 0 8px ${activeColor}, 0 0 16px ${activeColor}`;
+    p.style.boxShadow = `0 0 10px ${activeColor}, 0 0 20px ${activeColor}`;
     document.body.appendChild(p);
 
     const angle = Math.random() * Math.PI * 2;
-    const velocity = 40 + Math.random() * 120;
+    // Wider particle explosion velocity (80px to 320px radius)
+    const velocity = 80 + Math.random() * 240;
     const tx = Math.cos(angle) * velocity;
     const ty = Math.sin(angle) * velocity;
 
@@ -50,6 +63,6 @@ function createParticleBurst(x, y) {
 
     setTimeout(() => {
       p.remove();
-    }, 800);
+    }, 950);
   }
 }
