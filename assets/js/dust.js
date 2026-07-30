@@ -168,13 +168,14 @@ export function animateDust(nowTimestamp) {
   }
 
   isLoopRunning = true;
+  const currentTime = nowTimestamp || performance.now();
 
   // FPS Throttling for energy-efficient screensaver rendering
-  if (nowTimestamp && (nowTimestamp - lastFrameTime < frameInterval)) {
+  if (currentTime - lastFrameTime < frameInterval) {
     requestAnimationFrame(animateDust);
     return;
   }
-  lastFrameTime = nowTimestamp || Date.now();
+  lastFrameTime = currentTime;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
