@@ -77,7 +77,7 @@ function updateClock() {
     if (wrapper) {
       const transitionCurve = 'opacity 2s cubic-bezier(0.4, 0, 0.2, 1)';
 
-      // Step 1: Smooth Fade Out (0.7s 1:1 speed)
+      // Step 1: Smooth Fade Out (2s 1:1 speed)
       wrapper.style.transition = transitionCurve;
       wrapper.style.opacity = '0';
 
@@ -104,7 +104,7 @@ function updateClock() {
         // Force browser layout reflow to apply position instantly while hidden
         void wrapper.offsetWidth;
 
-        // Step 3: Smooth Fade In at new location (0.7s 1:1 speed)
+        // Step 3: Smooth Fade In at new location (2s 1:1 speed)
         requestAnimationFrame(() => {
           wrapper.style.transition = transitionCurve;
           wrapper.style.opacity = '1';

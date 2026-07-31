@@ -106,14 +106,21 @@ window.addEventListener('mousemove', () => {
   clockContainer.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
 });
 
-export function animateFollower() {
-  // Smooth, fluid lerp following
-  dotX += (mouseState.x - dotX) * 0.30;
-  dotY += (mouseState.y - dotY) * 0.30;
+let isFollowerAnimating = false;
 
-  // Glow lerp set to 0.07 for fluid, realistic motion that pairs with the comet tail
-  glowX += (mouseState.x - glowX) * 0.07;
-  glowY += (mouseState.y - glowY) * 0.07;
+export function animateFollower() {
+  const dx = mouseState.x - dotX;
+  const dy = mouseState.y - dotY;
+  const gx = mouseState.x - glowX;
+  const gy = mouseState.y - glowY;
+
+  // Smooth, fluid lerp following
+  dotX += dx * 0.30;
+  dotY += dy * 0.30;
+
+  // Glow lerp set to 0.07 for fluid, realistic motion
+  glowX += gx * 0.07;
+  glowY += gy * 0.07;
 
   dot.style.left = `${dotX}px`;
   dot.style.top = `${dotY}px`;
@@ -121,5 +128,24 @@ export function animateFollower() {
   glow.style.left = `${glowX}px`;
   glow.style.top = `${glowY}px`;
 
+  // Pause loop when cursor is stationary to save 100% CPU/GPU power
+  if (Math.abs(dx) < 0.1 && Math.abs(dy) < 0.1 && Math.abs(gx) < 0.1 && Math.abs(gy) < 0.1) {
+    isFollowerAnimating = false;
+    return;
+  }
+
+  isFollowerAnimating = true;
   requestAnimationFrame(animateFollower);
 }
+
+function wakeFollower() {
+  if (!isFollowerAnimating) {
+    isFollowerAnimating = true;
+    requestAnimationFrame(animateFollower);
+  }
+}
+
+// Wake animation loop on mouse/touch interaction
+window.addEventListener('mousemove', wakeFollower);
+window.addEventListener('touchmove', wakeFollower);
+

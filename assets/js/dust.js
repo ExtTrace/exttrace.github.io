@@ -7,9 +7,9 @@ const dustParticles = [];
 // Detect Android Screensaver Mode via URL parameter
 const isAndroidScreensaver = window.location.search.includes('mode=android');
 
-// Scaled density & FPS throttle for ultra-low power consumption in screensaver mode
-const dustCount = isAndroidScreensaver ? 20 : 70;
-const targetFps = isAndroidScreensaver ? 25 : 60;
+// Ultra-low power configuration for Android screensaver mode (prevents heating & slow charging)
+const dustCount = isAndroidScreensaver ? 6 : 70;
+const targetFps = isAndroidScreensaver ? 10 : 60;
 const frameInterval = 1000 / targetFps;
 
 let isVisible = true;
