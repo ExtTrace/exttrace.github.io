@@ -7,8 +7,8 @@ const dustParticles = [];
 // Detect Android Screensaver Mode via URL parameter
 const isAndroidScreensaver = window.location.search.includes('mode=android');
 
-// Ultra-low power configuration for Android screensaver mode (prevents heating & slow charging)
-const dustCount = isAndroidScreensaver ? 6 : 70;
+// On Android screensaver mode: ZERO dust particles (0% GPU/CPU background usage)
+const dustCount = isAndroidScreensaver ? 0 : 70;
 const targetFps = isAndroidScreensaver ? 10 : 60;
 const frameInterval = 1000 / targetFps;
 
@@ -156,13 +156,13 @@ document.addEventListener('visibilitychange', () => {
   const previouslyVisible = isVisible;
   isVisible = document.visibilityState === 'visible';
   
-  if (isVisible && !previouslyVisible && !isLoopRunning) {
+  if (isVisible && !previouslyVisible && !isLoopRunning && dustCount > 0) {
     animateDust();
   }
 });
 
 export function animateDust(nowTimestamp) {
-  if (!isVisible) {
+  if (!isVisible || dustCount === 0) {
     isLoopRunning = false;
     return;
   }
